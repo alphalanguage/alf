@@ -1,92 +1,40 @@
-\# Dicionário Alpha
+# Dicionário Alpha atualizado 01/03/2026
 
+<janela>
+Cria container principal.
 
+</janela>
+Fecha container.
 
-\## <janela>
+<esquerda>
+Alinha conteúdo à esquerda.
 
-Cria popup/container principal.
+<meio>
+Centraliza conteúdo.
 
+<direita>
+Alinha à direita.
 
-
-\## </janela>
-
-Fecha janela.
-
-
-
-\## \*campo
-
+*campo
 Cria input.
 
+@botao
+Cria botão.
 
+@botao -> URL
+Botão com redirecionamento.
 
-\## @botao
+@botao +acao "JS"
+Botão executa JavaScript.
 
-Cria botão clicável.
+&mensagem
+Mostra texto.
 
++src
+Define mídia.
 
++js
+Executa JavaScript direto.
 
-\## {secao}
-
-Define seção interna.
-
-
-
-\## #hex
-
-Define cor em hexadecimal.
-
-
-
-\## +src
-
-Define origem de mídia ou redirecionamento.
-
-
-
-\## $local
-
-Arquivo local.
-
-
-
-\## $online
-
-Link externo.
-
-
-
-\## $github
-
-RAW do GitHub.
-
-
-
-\## \&mensagem
-
-Exibe texto na tela.
-
-
-
-\## +js
-
-Executa JavaScript.
-
-
-
-\## <imagem>
-
-Bloco de imagem.
-
-
-
-\## <som>
-
-Bloco de áudio.
-
-
-
-\## <video>
-
-Bloco de vídeo.
-
+#hex
+Define cor de fundo.

@@ -1,4 +1,3 @@
-import sys
 import os
 import re
 import json
@@ -16,9 +15,8 @@ def carregar_banco(origem, caminho):
             return r.json()
         return []
 
-def gerar_saida(nome_arquivo, html, css, js):
-    base = os.path.splitext(nome_arquivo)[0]
-    with open(f"{base}.html", "w", encoding="utf-8") as f:
+def gerar_saida(nome_saida, html, css, js):
+    with open(f"{nome_saida}.html", "w", encoding="utf-8") as f:
         f.write(f"""
 <!DOCTYPE html>
 <html>
@@ -26,6 +24,30 @@ def gerar_saida(nome_arquivo, html, css, js):
 <meta charset="UTF-8">
 <title>Alpha App</title>
 <style>
+body {{
+    font-family: Arial;
+}}
+
+.janela {{
+    padding: 20px;
+}}
+
+.esquerda {{
+    text-align: left;
+}}
+
+.meio {{
+    text-align: center;
+}}
+
+.direita {{
+    text-align: right;
+}}
+
+button {{
+    padding: 10px 15px;
+    cursor: pointer;
+}}
 {css}
 </style>
 </head>
@@ -45,8 +67,7 @@ def traduzir(arquivo):
     html = ""
     css = ""
     js = ""
-
-    janela_cor = ""
+    alinhamento_atual = "esquerda"
 
     for linha in linhas:
         linha = linha.strip()
@@ -55,52 +76,79 @@ def traduzir(arquivo):
         if linha.startswith("<janela>"):
             match_cor = re.search(r"#([0-9a-fA-F]{6})", linha)
             if match_cor:
-                janela_cor = match_cor.group(0)
-                css += f"body {{ background-color: {janela_cor}; }}\n"
-            html += "<div class='janela'>\n"
+                css += f"body {{ background-color: {match_cor.group(0)}; }}\n"
+            html += f"<div class='janela {alinhamento_atual}'>\n"
 
         elif linha.startswith("</janela>"):
             html += "</div>\n"
+
+        # alinhamento
+        elif linha == "<esquerda>":
+            alinhamento_atual = "esquerda"
+        elif linha == "<meio>":
+            alinhamento_atual = "meio"
+        elif linha == "<direita>":
+            alinhamento_atual = "direita"
 
         # campo
         elif linha.startswith("*"):
             partes = linha.split('"')
             nome = linha.split()[0][1:]
             texto = partes[1] if len(partes) > 1 else nome.capitalize()
-            html += f"<label>{texto}</label><br>\n"
-            html += f"<input name='{nome}'><br><br>\n"
+            html += f"<div class='{alinhamento_atual}'>"
+            html += f"<label>{texto}</label><br>"
+            html += f"<input name='{nome}'><br><br></div>\n"
 
-        # botão
+        # botão com link
         elif linha.startswith("@"):
-            botao = linha.split()[0][1:]
-            html += f"<button>{botao.capitalize()}</button><br><br>\n"
+            partes = linha.split()
+            nome_botao = partes[0][1:]
+            link = None
+            acao_js = None
 
-        # imagem / som / video
-        elif linha.startswith("+src"):
-            partes = linha.split('"')
-            link = partes[1]
-            if link.endswith((".png", ".jpg", ".jpeg")):
-                html += f"<img src='{link}' width='300'><br>\n"
-            elif link.endswith(".mp3"):
-                html += f"<audio controls src='{link}'></audio><br>\n"
-            elif link.endswith(".mp4"):
-                html += f"<video controls width='400' src='{link}'></video><br>\n"
+            if "->" in linha:
+                link = linha.split("->")[1].strip()
+
+            if "+acao" in linha:
+                acao_js = linha.split('"')[1]
+
+            html += f"<div class='{alinhamento_atual}'>"
+            if link:
+                html += f"<button onclick=\"window.location.href='{link}'\">{nome_botao.capitalize()}</button>"
+            elif acao_js:
+                js += acao_js + "\n"
+                html += f"<button onclick=\"{acao_js}\">{nome_botao.capitalize()}</button>"
+            else:
+                html += f"<button>{nome_botao.capitalize()}</button>"
+            html += "</div><br>\n"
 
         # mensagem
         elif linha.startswith("&mensagem"):
             msg = linha.split('"')[1]
-            html += f"<p>{msg}</p>\n"
+            html += f"<div class='{alinhamento_atual}'><p>{msg}</p></div>\n"
 
-        # js inline
+        # mídia
+        elif linha.startswith("+src"):
+            partes = linha.split('"')
+            link = partes[1]
+            html += f"<div class='{alinhamento_atual}'>"
+            if link.endswith((".png", ".jpg", ".jpeg")):
+                html += f"<img src='{link}' width='300'>"
+            elif link.endswith(".mp3"):
+                html += f"<audio controls src='{link}'></audio>"
+            elif link.endswith(".mp4"):
+                html += f"<video controls width='400' src='{link}'></video>"
+            html += "</div><br>\n"
+
+        # js direto
         elif linha.startswith("+js"):
             codigo = linha.split('"')[1]
             js += codigo + "\n"
 
-    gerar_saida(arquivo, html, css, js)
-    print("Arquivo gerado com sucesso.")
+    nome_saida = input("Como gostaria de salvar o arquivo? (sem .html): ")
+    gerar_saida(nome_saida, html, css, js)
+    print(f"Arquivo {nome_saida}.html gerado com sucesso.")
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Uso: python tradutor.py arquivo.alf")
-    else:
-        traduzir(sys.argv[1])
+    arquivo = input("Digite o nome do arquivo .alf: ")
+    traduzir(arquivo)
