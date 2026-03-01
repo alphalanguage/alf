@@ -4,7 +4,7 @@
 
 Alpha é uma linguagem brasileira que transforma arquivos .alf em aplicações web completas.
 
-
+---
 
 \## Como executar
 
@@ -82,6 +82,7 @@ Abra no navegador.
 \- < > sempre minúsculo
 
 \- # indica cor hexadecimal
+
 
 
 
